@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: neural-bank
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/neural_bank}
+    username: ${DB_USERNAME:neural_bank}
+    password: ${DB_PASSWORD:neural_bank}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
