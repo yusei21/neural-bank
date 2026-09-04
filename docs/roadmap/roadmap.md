@@ -1,22 +1,20 @@
 # Neural Bank Roadmap
 
-Este roadmap define a ordem recomendada de evolução do projeto. A ideia é manter o Neural Bank simples no início, consolidar fundamentos de backend e só então adicionar IA, agentes e integrações mais avançadas.
+Use este arquivo como sequência de trabalho. Feche uma fase antes de abrir a próxima.
 
-## Regra de evolução
+## Regras do projeto
 
-Antes de avançar para a próxima fase:
-
-- o código da fase atual deve compilar;
-- os principais casos de uso devem ter testes;
-- decisões importantes devem ser registradas em `docs/`;
-- cada funcionalidade deve entrar em um commit pequeno e temático;
-- não adicionar infraestrutura complexa sem existir um problema real que justifique isso.
+- Faça o código compilar antes de seguir.
+- Cubra os casos de uso principais com testes.
+- Registre decisões em `docs/`.
+- Separe cada mudança em um commit temático.
+- Adicione infraestrutura quando um problema do projeto exigir.
 
 ---
 
 ## v0.1.0 - Core Banking
 
-Objetivo: construir um banco mínimo funcional e consolidar Spring Boot, REST, JPA, PostgreSQL, migrations e regras de domínio.
+Construa o fluxo bancário básico com Spring Boot, REST, JPA, PostgreSQL e Flyway.
 
 ### Fundação
 
@@ -27,47 +25,49 @@ Objetivo: construir um banco mínimo funcional e consolidar Spring Boot, REST, J
 - [x] Adicionar `.env.example`
 - [x] Configurar Flyway
 - [x] Criar migration inicial
-- [x] Criar estrutura modular por domínio
+- [x] Organizar o código por domínio
 
 ### Customer
 
-- [x] Criar entidade `Customer`
+- [x] Criar `Customer`
 - [x] Criar repository
 - [x] Criar application service
 - [x] Criar endpoint de cadastro
-- [ ] Adicionar endpoint para buscar cliente por id
-- [ ] Adicionar endpoint para listar contas do cliente
-- [ ] Adicionar validação de e-mail único
-- [ ] Criar testes unitários e de integração
+- [ ] Criar endpoint `GET /customers/{id}`
+- [ ] Criar endpoint para listar contas do cliente
+- [ ] Impedir cadastro de e-mail duplicado
+- [ ] Testar criação e consulta de cliente
 
 ### Account
 
-- [x] Criar entidade `Account`
+- [x] Criar `Account`
 - [x] Criar `AccountStatus`
 - [x] Criar repository
 - [x] Criar application service
-- [x] Criar endpoint para criar conta
+- [x] Criar endpoint para abrir conta
 - [x] Criar endpoint para consultar conta
 - [x] Implementar depósito
 - [x] Implementar saque
 - [x] Impedir saldo negativo
-- [ ] Adicionar número de conta independente do UUID
-- [ ] Adicionar data de criação da conta
-- [ ] Criar testes para todas as invariantes da conta
+- [ ] Criar número de conta separado do UUID
+- [ ] Registrar data de criação
+- [ ] Testar depósito, saque, saldo insuficiente e valor inválido
 
 ### Transactions
 
-- [x] Criar entidade `Transaction`
+- [x] Criar `Transaction`
 - [x] Criar tipos de transação
 - [x] Criar repository
-- [x] Implementar histórico de transações
-- [x] Implementar transferência atômica
-- [x] Registrar débito e crédito de uma transferência
-- [ ] Criar identificador compartilhado para os dois lados da transferência
-- [ ] Adicionar descrição opcional da transação
-- [ ] Adicionar paginação ao extrato
-- [ ] Ordenar extrato por data decrescente
-- [ ] Criar testes de transferência
+- [x] Criar histórico de transações
+- [x] Criar transferência atômica
+- [x] Registrar débito e crédito da transferência
+- [ ] Criar `transferId` para ligar débito e crédito
+- [ ] Adicionar descrição opcional
+- [ ] Paginar o extrato
+- [ ] Ordenar o extrato por data decrescente
+- [ ] Testar transferência entre contas
+- [ ] Testar saldo insuficiente
+- [ ] Testar transferência para a mesma conta
 
 ### API
 
@@ -75,134 +75,135 @@ Objetivo: construir um banco mínimo funcional e consolidar Spring Boot, REST, J
 - [ ] Configurar Swagger UI
 - [ ] Documentar requests e responses
 - [ ] Padronizar códigos HTTP
-- [ ] Criar modelo padrão de erro
-- [ ] Adicionar `@ControllerAdvice` mais completo
+- [ ] Criar resposta padrão de erro
+- [ ] Completar `@ControllerAdvice`
 - [ ] Validar payloads com Bean Validation
 
 ### Testes
 
-- [x] Criar primeiros testes unitários do domínio
-- [ ] Aumentar cobertura de testes de domínio
+- [x] Criar testes unitários iniciais
+- [ ] Cobrir regras do domínio
 - [ ] Adicionar Testcontainers
-- [ ] Testar PostgreSQL real em integração
+- [ ] Rodar testes de integração com PostgreSQL
 - [ ] Testar migrations Flyway
-- [ ] Criar testes dos controllers
-- [ ] Criar teste end-to-end do fluxo cliente -> conta -> depósito -> transferência
+- [ ] Testar controllers
+- [ ] Testar o fluxo completo: cliente -> conta -> depósito -> transferência -> extrato
 
-### Critério para concluir v0.1.0
+### Fechamento da v0.1.0
 
-Deve ser possível executar localmente:
+Antes de criar a tag `v0.1.0`, confirme este fluxo:
 
-1. subir PostgreSQL com Docker;
-2. iniciar a aplicação;
-3. cadastrar dois clientes;
-4. criar uma conta para cada cliente;
-5. depositar dinheiro em uma conta;
-6. transferir entre as contas;
-7. consultar o saldo final;
-8. consultar o extrato;
-9. executar os testes com sucesso;
-10. visualizar a API no Swagger.
+1. Suba PostgreSQL com Docker.
+2. Inicie a aplicação.
+3. Cadastre dois clientes.
+4. Abra uma conta para cada cliente.
+5. Deposite dinheiro na conta de origem.
+6. Faça uma transferência.
+7. Consulte os dois saldos.
+8. Consulte o extrato.
+9. Rode os testes.
+10. Abra a documentação no Swagger.
 
 ---
 
 ## v0.2.0 - Banking Reliability
 
-Objetivo: estudar problemas reais de sistemas financeiros: concorrência, consistência, idempotência, auditoria e segurança.
+Use esta fase para estudar consistência, concorrência, idempotência, auditoria e segurança.
 
 ### Idempotência
 
-- [ ] Entender o problema de requisições repetidas
-- [ ] Criar suporte a `Idempotency-Key`
-- [ ] Persistir resultados de operações idempotentes
-- [ ] Impedir transferências duplicadas
-- [ ] Criar testes para retries
+- [ ] Criar suporte ao header `Idempotency-Key`
+- [ ] Persistir a chave e o resultado da operação
+- [ ] Retornar o mesmo resultado em retries
+- [ ] Impedir transferência duplicada
+- [ ] Testar retries concorrentes
 
 ### Concorrência
 
-- [ ] Criar testes com operações concorrentes
+- [ ] Criar testes com operações simultâneas
 - [ ] Estudar optimistic locking
-- [ ] Adicionar `@Version` onde fizer sentido
-- [ ] Estudar pessimistic locking para movimentações críticas
-- [ ] Garantir que duas operações simultâneas não causem saldo inconsistente
+- [ ] Adicionar `@Version` nas entidades que precisam de controle de versão
+- [ ] Testar pessimistic locking em movimentações críticas
+- [ ] Garantir consistência do saldo em operações concorrentes
 
 ### Ledger
 
 - [ ] Estudar double-entry bookkeeping
-- [ ] Separar saldo de histórico financeiro
-- [ ] Criar ledger append-only
 - [ ] Criar `LedgerEntry`
-- [ ] Registrar crédito e débito como lançamentos imutáveis
-- [ ] Calcular/reconciliar saldo com base no ledger
+- [ ] Tratar lançamentos como registros imutáveis
+- [ ] Registrar um débito e um crédito por transferência
+- [ ] Recalcular saldo pelo ledger
+- [ ] Comparar saldo armazenado com saldo calculado
 - [ ] Criar testes de reconciliação
 
 ### Eventos de domínio
 
-- [ ] Criar eventos como `MoneyDeposited`
+- [ ] Criar `MoneyDeposited`
 - [ ] Criar `MoneyWithdrawn`
 - [ ] Criar `TransferCompleted`
-- [ ] Publicar eventos somente após sucesso da transação
-- [ ] Estudar `@TransactionalEventListener`
+- [ ] Publicar eventos após o commit da transação
+- [ ] Usar `@TransactionalEventListener`
+- [ ] Testar publicação e falhas
 
 ### Auditoria e POA
 
-- [ ] Criar annotation `@Auditable`
-- [ ] Criar Aspect para auditoria
+- [ ] Criar `@Auditable`
+- [ ] Criar um Aspect de auditoria
 - [ ] Registrar correlation id
 - [ ] Registrar operação, duração e resultado
-- [ ] Garantir que regras de negócio continuem fora dos Aspects
-- [ ] Documentar limites de uso de POA
+- [ ] Manter regras bancárias nos services e entidades
+- [ ] Documentar onde o projeto usa POA
 
 ### Segurança
 
 - [ ] Adicionar Spring Security
 - [ ] Criar autenticação
-- [ ] Criar autorização por usuário/conta
-- [ ] Impedir acesso a conta de outro usuário
-- [ ] Avaliar JWT para a API
-- [ ] Criar testes de autorização
+- [ ] Criar autorização por usuário e conta
+- [ ] Bloquear acesso a contas de outro usuário
+- [ ] Avaliar JWT
+- [ ] Testar autorização
 
 ### Observabilidade
 
 - [ ] Adicionar Spring Boot Actuator
-- [ ] Adicionar métricas
+- [ ] Expor métricas da aplicação
 - [ ] Adicionar tracing
 - [ ] Padronizar logs estruturados
-- [ ] Adicionar correlation id em requests
-- [ ] Criar métricas para transferências e falhas
+- [ ] Propagar correlation id
+- [ ] Medir transferências, falhas e latência
 
-### Critério para concluir v0.2.0
+### Fechamento da v0.2.0
 
-O sistema deve suportar retries e concorrência sem duplicar operações ou corromper saldo, além de possuir autenticação, auditoria e observabilidade suficientes para investigar uma operação financeira.
+Crie a tag `v0.2.0` quando retries e concorrência não duplicarem movimentações nem corromperem saldo. Você também deve conseguir identificar quem executou uma operação, quando ela ocorreu e qual resultado produziu.
 
 ---
 
 ## v0.3.0 - Neural Layer
 
-Objetivo: integrar IA sem permitir que o modelo controle diretamente persistência ou regras bancárias.
+Adicione IA sobre os application services do banco.
 
 ### Spring AI
 
 - [ ] Adicionar dependências do Spring AI
-- [ ] Configurar primeiro provider de modelo
+- [ ] Configurar um provider de modelo
 - [ ] Criar `ChatClient`
-- [ ] Criar endpoint simples de chat
-- [ ] Separar configuração de IA do domínio bancário
+- [ ] Criar endpoint de chat
+- [ ] Isolar configuração de IA no módulo `ai`
 
 ### Financial Assistant v1
 
-Primeira versão somente leitura.
+Comece com leitura de dados.
 
 - [ ] Criar `FinancialAssistant`
 - [ ] Criar system prompt
 - [ ] Criar tool `getAccount`
 - [ ] Criar tool `getBalance`
 - [ ] Criar tool `getTransactions`
-- [ ] Garantir que tools chamem application services
-- [ ] Proibir acesso direto do agente a repositories
-- [ ] Proibir acesso direto do agente ao banco de dados
+- [ ] Fazer cada tool chamar um application service
+- [ ] Bloquear acesso do agente aos repositories
+- [ ] Bloquear acesso do agente ao PostgreSQL
 
-Fluxo esperado:
+Fluxo:
 
 ```text
 User
@@ -216,159 +217,165 @@ User
 
 ### Análise financeira
 
-- [ ] Criar resumo de transações
-- [ ] Criar categorização de gastos
-- [ ] Criar análise simples de hábitos financeiros
-- [ ] Criar explicações sobre movimentações
-- [ ] Diferenciar cálculo determinístico de inferência do modelo
+- [ ] Resumir transações
+- [ ] Categorizar gastos
+- [ ] Identificar padrões de gastos
+- [ ] Explicar movimentações
+- [ ] Usar código para cálculos financeiros
+- [ ] Usar o modelo para classificação e linguagem natural
 
 ### Segurança de IA
 
 - [ ] Criar `docs/ai/safety.md`
-- [ ] Documentar ferramentas permitidas
-- [ ] Validar argumentos de tools
-- [ ] Limitar quantidade de dados retornados ao modelo
-- [ ] Não enviar dados sensíveis desnecessários ao LLM
-- [ ] Registrar tool calls para auditoria
-- [ ] Criar testes contra prompt injection básico
+- [ ] Listar tools permitidas
+- [ ] Validar argumentos de cada tool
+- [ ] Limitar dados enviados ao modelo
+- [ ] Remover dados sensíveis sem uso para a tarefa
+- [ ] Registrar chamadas de tools
+- [ ] Testar prompt injection
 
 ### Avaliação
 
-- [ ] Criar conjunto fixo de perguntas de teste
-- [ ] Avaliar respostas corretas/incorretas
-- [ ] Avaliar seleção de tools
-- [ ] Avaliar hallucinations
-- [ ] Registrar experimentos em `docs/ai/experiments/`
+- [ ] Criar um conjunto fixo de perguntas
+- [ ] Registrar resposta esperada para cada caso
+- [ ] Medir escolha de tools
+- [ ] Registrar hallucinations
+- [ ] Criar experimentos em `docs/ai/experiments/`
 
-### Critério para concluir v0.3.0
+### Fechamento da v0.3.0
 
-O usuário deve conseguir conversar com um assistente que consulta informações reais do Neural Bank através de tools controladas, sem acesso direto ao banco e sem capacidade de alterar estado.
+Crie a tag quando o assistente consultar dados reais por tools e responder sem alterar contas, saldos ou transações.
 
 ---
 
-## v0.4.0 - AI Memory and RAG
+## v0.4.0 - Memory and RAG
 
-Objetivo: estudar contexto, memória e recuperação de conhecimento sem misturar esses conceitos.
+Separe memória de conversa de recuperação de documentos.
 
 ### Memory
 
-- [ ] Estudar diferença entre chat history e memória de longo prazo
-- [ ] Implementar memória de conversa
+- [ ] Implementar histórico de conversa
 - [ ] Definir limite de contexto
-- [ ] Testar resumo de conversas antigas
-- [ ] Avaliar o que nunca deve ser salvo como memória
+- [ ] Resumir conversas antigas
+- [ ] Definir quais dados o sistema pode guardar
+- [ ] Testar recuperação de contexto entre mensagens
 
 ### RAG
 
-Só adicionar quando existir uma base documental útil.
+Adicione RAG quando o projeto tiver documentos que o assistente precise consultar.
 
 - [ ] Criar documentos bancários de exemplo
-- [ ] Adicionar embeddings
-- [ ] Adicionar vector store
+- [ ] Gerar embeddings
+- [ ] Configurar vector store
 - [ ] Criar pipeline de ingestão
 - [ ] Criar busca semântica
-- [ ] Integrar contexto recuperado ao assistente
-- [ ] Testar relevância dos documentos recuperados
-- [ ] Adicionar citações/fontes às respostas
+- [ ] Entregar documentos recuperados ao modelo
+- [ ] Testar relevância da busca
+- [ ] Citar as fontes usadas na resposta
 
-### Critério para concluir v0.4.0
+### Fechamento da v0.4.0
 
-O assistente deve conseguir manter contexto de conversa e responder perguntas baseadas em uma base documental sem confundir conhecimento recuperado com dados transacionais das contas.
+O assistente deve manter contexto da conversa e consultar documentos sem misturar esse conteúdo com saldo, conta ou transações.
 
 ---
 
 ## v0.5.0 - Agentic Banking
 
-Objetivo: permitir que o agente planeje e proponha ações, mantendo confirmação humana para qualquer alteração financeira.
+Permita que o agente prepare operações. O usuário confirma cada operação que altera dinheiro.
 
-### Tool calling com escrita
+### Tools de escrita
 
 - [ ] Criar `prepareTransfer`
-- [ ] Criar objeto de operação pendente
-- [ ] Mostrar destinatário, origem, valor e taxas antes da execução
-- [ ] Exigir confirmação explícita do usuário
-- [ ] Criar `executeTransfer` separado
-- [ ] Invalidar operações expiradas
-- [ ] Registrar aprovação humana
+- [ ] Criar `PendingOperation`
+- [ ] Registrar conta de origem, destino, valor e expiração
+- [ ] Mostrar os dados da operação ao usuário
+- [ ] Pedir confirmação explícita
+- [ ] Criar `executeTransfer`
+- [ ] Exigir uma confirmação válida no backend
+- [ ] Expirar operações pendentes
+- [ ] Registrar quem confirmou
 
-### Human-in-the-loop
-
-Fluxo esperado:
+Fluxo:
 
 ```text
 User request
    -> Agent
-      -> prepare action
-         -> validation
+      -> prepareTransfer
+         -> backend validation
             -> user confirmation
-               -> execute action
+               -> executeTransfer
 ```
 
-- [ ] Nunca executar transferência apenas com intenção inferida
-- [ ] Nunca permitir confirmação criada pelo próprio modelo
-- [ ] Criar testes para operações sem confirmação
-- [ ] Criar auditoria completa da decisão
+### Human in the loop
+
+- [ ] Recusar execução sem confirmação
+- [ ] Vincular a confirmação ao usuário autenticado
+- [ ] Impedir que texto gerado pelo modelo funcione como confirmação
+- [ ] Testar operação expirada
+- [ ] Testar confirmação de outro usuário
+- [ ] Auditar preparação e execução
 
 ### Agent loop
 
-- [ ] Estudar planning e tool selection
-- [ ] Definir limite de passos por execução
+- [ ] Definir limite de passos
 - [ ] Definir timeout
-- [ ] Definir custo máximo por execução
-- [ ] Tratar falhas de ferramentas
-- [ ] Evitar loops infinitos
+- [ ] Definir limite de custo
+- [ ] Tratar falha de tool
+- [ ] Interromper ciclos repetidos
+- [ ] Registrar cada passo do agente para depuração
 
-### Critério para concluir v0.5.0
+### Fechamento da v0.5.0
 
-O agente pode preparar ações financeiras, mas nenhuma alteração crítica ocorre sem validações determinísticas e aprovação explícita do usuário.
+Crie a tag quando o agente preparar transferências e o backend exigir confirmação do usuário antes de executar cada uma.
 
 ---
 
-## v0.6.0 - MCP Experiments
+## v0.6.0 - MCP
 
-Objetivo: estudar interoperabilidade de tools e contexto entre aplicações.
+Use MCP para expor parte do Neural Bank para clientes externos de IA.
 
-- [ ] Estudar arquitetura MCP
-- [ ] Criar um MCP Server experimental para consultas do Neural Bank
-- [ ] Expor somente operações read-only inicialmente
-- [ ] Criar tools para saldo e extrato
-- [ ] Testar um MCP Client separado
-- [ ] Adicionar autenticação e autorização
-- [ ] Documentar ameaças de segurança
+- [ ] Estudar o protocolo MCP
+- [ ] Criar um MCP Server
+- [ ] Expor saldo
+- [ ] Expor extrato
+- [ ] Manter as tools MCP em modo leitura na primeira versão
+- [ ] Criar um MCP Client separado
+- [ ] Adicionar autenticação
+- [ ] Adicionar autorização
+- [ ] Documentar ameaças e limites
 - [ ] Comparar MCP com tool calling interno do Spring AI
 
 ---
 
-## v0.7.0 - Multi-Agent Experiments
+## v0.7.0 - Multi-Agent
 
-Objetivo: estudar multi-agent somente depois que um único agente estiver funcionando e houver necessidade concreta.
+Teste multi-agent depois de medir o agente único.
 
-### Possíveis agentes
+### Agentes candidatos
 
 - [ ] Financial Assistant
 - [ ] Spending Analysis Agent
 - [ ] Fraud Analysis Agent
 - [ ] Support Agent
-- [ ] Supervisor/Router Agent
+- [ ] Supervisor ou Router Agent
 
 ### Experimentos
 
-- [ ] Comparar single-agent vs multi-agent
-- [ ] Medir latência
-- [ ] Medir custo
-- [ ] Medir qualidade das respostas
-- [ ] Definir quando delegação realmente melhora o sistema
-- [ ] Evitar agentes redundantes
+- [ ] Criar a mesma tarefa no modelo single-agent
+- [ ] Criar a mesma tarefa no modelo multi-agent
+- [ ] Comparar latência
+- [ ] Comparar custo
+- [ ] Comparar acerto de tools
+- [ ] Comparar qualidade das respostas
+- [ ] Remover agentes que não melhorarem os resultados
 
-### Critério para manter multi-agent
-
-Só manter essa arquitetura se os experimentos mostrarem benefício claro sobre um único agente com boas tools.
+Mantenha multi-agent se os testes mostrarem ganho sobre um agente único com as mesmas tools.
 
 ---
 
-## Backlog futuro
+## Backlog
 
-Itens que não devem bloquear as fases anteriores.
+Trate estes itens como estudos separados. Eles não bloqueiam o core bancário nem a primeira integração com IA.
 
 - [ ] Redis
 - [ ] Cache
@@ -378,42 +385,39 @@ Itens que não devem bloquear as fases anteriores.
 - [ ] Rate limiting
 - [ ] CI com GitHub Actions
 - [ ] Dockerfile da aplicação
-- [ ] Docker Compose com aplicação + banco
+- [ ] Docker Compose com aplicação e banco
 - [ ] Deploy em cloud
-- [ ] Kubernetes somente se houver objetivo claro de estudo
-- [ ] Event sourcing como experimento separado
-- [ ] CQRS como experimento separado
+- [ ] Kubernetes
+- [ ] Event sourcing
+- [ ] CQRS
 
 ---
 
-## Ordem recomendada agora
+## Próximos commits
 
-O foco imediato deve ser terminar completamente a `v0.1.0` antes de avançar para IA.
+Siga esta ordem antes de iniciar a v0.2.0:
 
 1. Adicionar Bean Validation nos requests.
-2. Padronizar erros da API.
-3. Adicionar OpenAPI + Swagger UI.
-4. Criar testes unitários que faltam para Account e Transfer.
-5. Adicionar Testcontainers.
-6. Criar testes de integração com PostgreSQL.
-7. Criar teste end-to-end do fluxo bancário principal.
-8. Adicionar paginação ao extrato.
-9. Revisar schema e constraints do PostgreSQL.
-10. Fechar a `v0.1.0`.
-11. Começar idempotência e concorrência da `v0.2.0`.
-12. Implementar ledger.
-13. Implementar segurança, auditoria e observabilidade.
-14. Somente então iniciar Spring AI.
+2. Criar resposta padrão de erro.
+3. Completar `@ControllerAdvice`.
+4. Adicionar Springdoc OpenAPI.
+5. Configurar Swagger UI.
+6. Testar saque e depósito.
+7. Testar transferências.
+8. Adicionar Testcontainers.
+9. Criar teste de integração com PostgreSQL.
+10. Testar migrations Flyway.
+11. Criar teste do fluxo bancário completo.
+12. Paginar o extrato.
+13. Revisar constraints do PostgreSQL.
+14. Criar a tag `v0.1.0`.
 
-## Estratégia de commits
-
-Continuar usando commits pequenos e específicos. Exemplos:
+Use um commit para cada mudança quando a separação mantiver o código compilando.
 
 ```text
 feat(validation): validate customer creation request
 feat(validation): validate transfer request
 feat(web): standardize api error response
-docs(openapi): document api conventions
 feat(openapi): add springdoc configuration
 test(account): cover withdrawal edge cases
 test(transfer): cover insufficient balance
@@ -422,12 +426,10 @@ test(integration): add postgres container base test
 feat(transaction): paginate transaction history
 ```
 
-Evitar commits grandes como:
+Evite mensagens que escondem várias mudanças no mesmo commit:
 
 ```text
 feat: finish backend
 feat: add ai
 fix: several things
 ```
-
-O histórico do Git deve funcionar como parte da documentação do aprendizado e da evolução arquitetural do Neural Bank.
